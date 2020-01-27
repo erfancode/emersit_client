@@ -1,0 +1,44 @@
+name: emersit
+description: A new Flutter project.
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^0.1.2
+  shared_preferences: 0.5.6+1
+  http: ^0.11.3+16
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_launcher_icons: "^0.7.4"
+
+flutter_icons:
+  image_path: "assets/icon/logo.png"
+  android: true
+  ios: true
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter.
+flutter:
+
+
+  assets:
+    - assets/images/
+    - assets/fonts/
+
+#  fonts:
+#    - family: Roboto
+#      fonts:
+#        - asset: assets/fonts/
+
+  uses-material-design: true
