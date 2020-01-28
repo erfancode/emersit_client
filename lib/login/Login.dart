@@ -1,8 +1,9 @@
 
 import 'dart:convert';
 
+import 'package:emersit/Network.dart';
+import 'package:emersit/Utils.dart';
 import 'package:emersit/main/MainPage.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/User.dart';
 
 class LoginPage extends StatefulWidget{
+
     LoginPage({Key key}) : super(key: key);
 
     @override
@@ -17,6 +19,12 @@ class LoginPage extends StatefulWidget{
 }
 
 class _LoginPageState extends State<LoginPage>{
+
+    static const USERNAME_LABEL = 'Username';
+    static const PASSWORD_LABEL = 'Passwprd';
+    static const LOGIN_LABEL = 'Log In';
+
+    static const FAILED_LOGIN_MESSAGE = "Something went wrong! Try again.";
 
     final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -27,13 +35,6 @@ class _LoginPageState extends State<LoginPage>{
 
     bool isLoading = false;
 
-//    static BaseOptions options = new BaseOptions(
-//        baseUrl: "https://emersit.herokuapp.com/api",
-//        connectTimeout: 60000,
-//        receiveTimeout: 60000,
-//    );
-//    Dio dio = new Dio(options);
-
     @override
     Widget build(BuildContext context) {
 
@@ -43,7 +44,7 @@ class _LoginPageState extends State<LoginPage>{
                 color: Colors.black,
             ),
             decoration: InputDecoration(
-                labelText: 'Username',
+                labelText: USERNAME_LABEL,
                 contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                 prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(
@@ -63,7 +64,7 @@ class _LoginPageState extends State<LoginPage>{
             ),
             obscureText: true,
             decoration: InputDecoration(
-                labelText: 'Password',
+                labelText: PASSWORD_LABEL,
                 contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                 prefixIcon: Icon(Icons.lock),
                 border: OutlineInputBorder(
@@ -78,19 +79,19 @@ class _LoginPageState extends State<LoginPage>{
 
         final loginButton = RaisedButton(
             onPressed: isLoading ? null : _login,
-            color: Color(0xffff2020),
+            color: Theme.of(context).primaryColor,
             splashColor: Colors.grey,
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(24.0),
             ),
             child: isLoading ? SizedBox(
                 child : CircularProgressIndicator(
-                    valueColor: new AlwaysStoppedAnimation<Color>(Color(0xffff2020)),
+                    valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
                 ),
                 height: 24,
                 width: 24,
             ) : Text(
-                "Log In",
+                LOGIN_LABEL,
                 style: TextStyle(
                     fontSize: 16.0,
                     color: Colors.white,
@@ -117,7 +118,7 @@ class _LoginPageState extends State<LoginPage>{
                                         SizedBox(height: 40),
                                         Container(
                                             decoration: BoxDecoration(
-                                                color: Color(0xffff2020),
+                                                color: Theme.of(context).primaryColor,
                                                 borderRadius: BorderRadius.all(Radius.circular(16.0)),
                                             ),
 
@@ -131,7 +132,7 @@ class _LoginPageState extends State<LoginPage>{
                                             "Emersit",
                                             style: TextStyle(
                                                 fontSize: 34.0,
-                                                color: Color(0xffff2020),
+                                                color: Theme.of(context).primaryColor,
                                                 fontFamily: "Roboto",
                                                 fontWeight: FontWeight.bold,
                                             ),
@@ -191,40 +192,41 @@ class _LoginPageState extends State<LoginPage>{
         if(canLogin) {
 
             setState(() {
-              isLoading = true;
+                isLoading = true;
             });
-            var response = await http.post("https://emersit.herokuapp.com/api/user/login", body: {"password": password, "username": username});
-            print('Response body: ${response.body}');
 
-            var jsonResponse = json.decode(response.body);
+            Network.login(username, password).then((response) async {
+                var jsonResponse = json.decode(response.body);
 
-            if(jsonResponse["user"] != null) {
+                if(jsonResponse["user"] != null) {
 
-                User user = User.fromJson(jsonResponse["user"]);
+                    User user = User.fromJson(jsonResponse["user"]);
 
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.setString('token', user.token);
-                await prefs.setString('user', json.encode(user.toJson()));
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    await prefs.setString(Network.TOKEN_KEY, user.token);
+                    await prefs.setString(Network.USER_KEY, json.encode(user.toJson()));
 
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainPage(user)),);
-            }
-            else{
-                scaffoldKey.currentState.showSnackBar(new SnackBar(
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainPage(user)),);
+                }
+                else{
+                    scaffoldKey.currentState.showSnackBar(new SnackBar(
                         content: new Text(
-                                jsonResponse["description"] != null ? jsonResponse["description"]: "Something went wrong! Try again.",
-                                style: TextStyle(
+                            jsonResponse["description"] != null ? jsonResponse["description"]: FAILED_LOGIN_MESSAGE,
+                            style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500
-                                ),
+                            ),
                         ),
 
                         duration: Duration(milliseconds: 1500),
-                        backgroundColor: Color(0xffff2020),
-                ));
-            }
-            setState(() {
-                isLoading = false;
+                        backgroundColor: Theme.of(context).primaryColor,
+                    ));
+
+                    setState(() {
+                        isLoading = false;
+                    });
+                }
             });
         }
     }

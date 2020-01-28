@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:emersit/Network.dart';
+import 'package:emersit/Utils.dart';
 import 'package:emersit/login/Login.dart';
 import 'package:emersit/main/MainPage.dart';
 import 'package:emersit/model/User.dart';
@@ -16,7 +18,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp>{
 
-    bool isLogin = null;
+    bool isLogin;
     String userString;
 
     @override
@@ -25,8 +27,8 @@ class _MyAppState extends State<MyApp>{
 
         (() async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
-            String token = prefs.getString('token');
-            String user = prefs.getString('user');
+            String token = prefs.getString(Network.TOKEN_KEY);
+            String user = prefs.getString(Network.USER_KEY);
 
             setState(() {
                 if(token != null && token.length > 0){
@@ -43,13 +45,13 @@ class _MyAppState extends State<MyApp>{
     @override
     Widget build(BuildContext context) {
         return MaterialApp(
-            title: 'Emersit',
+            title: Utils.APP_NAME,
             theme: ThemeData(
-                primaryColor: Color(0xffff2020),
+                primaryColor: Utils.MAIN_COLOR,
             ),
             home: isLogin == null ? SizedBox(
                 child : CircularProgressIndicator(
-                    valueColor: new AlwaysStoppedAnimation<Color>(Color(0xffff2020)),
+                    valueColor: new AlwaysStoppedAnimation<Color>(Utils.MAIN_COLOR),
                 ),
                 height: 32,
                 width: 32,
@@ -58,8 +60,9 @@ class _MyAppState extends State<MyApp>{
     }
 
     Future<bool> checkLogin() async {
+
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String token = prefs.getString('token');
+        String token = prefs.getString(Network.TOKEN_KEY);
 
         setState(() {
             if(token != null && token.length > 0){

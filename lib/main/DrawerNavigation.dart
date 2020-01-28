@@ -2,31 +2,27 @@
 
 import 'package:emersit/Utils.dart';
 import 'package:emersit/filledform/FilledFormsPage.dart';
-import 'package:emersit/login/Login.dart';
+import 'package:emersit/main/SubmittedFormsPage.dart';
 import 'package:emersit/model/User.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'MainPage.dart';
 
 class DrawerNavigation extends StatelessWidget{
 
+    static const String HOME_KEY = 'Home';
+    static const String FILLED_FORMS_KEY = 'Filled Forms';
+    static const String EXIT_KEY = 'Exit';
+
     User user;
     BuildContext context;
-    DrawerNavigation(User user, BuildContext context){
 
-        this.user = user;
-        this.context = context;
-    }
+    DrawerNavigation(this.user,this.context);
+
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
+
     return Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
         child: ListView(
-            // Important: Remove any padding from the ListView.
             padding: EdgeInsets.zero,
             children: <Widget>[
                 DrawerHeader(
@@ -40,7 +36,7 @@ class DrawerNavigation extends StatelessWidget{
                             ),
                             SizedBox(height: 16),
                             Text(
-                                'Erfan Gholami',
+                                user.name,
                                 style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
@@ -50,7 +46,7 @@ class DrawerNavigation extends StatelessWidget{
                         ],
                     ),
                     decoration: BoxDecoration(
-                        color: Color(0xffff2020),
+                        color: Theme.of(context).primaryColor,
                     ),
                 ),
                 ListTile(
@@ -60,35 +56,7 @@ class DrawerNavigation extends StatelessWidget{
                             Container(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
-                                        "Home",
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            color: Colors.black,
-                                            fontFamily: "Roboto",
-                                            fontWeight: FontWeight.w400,
-                                        ),
-                                    )
-                            ),
-                            Image.asset(
-                                "assets/images/navigation_item_icon.png",
-                                height: 12.0,
-                                width: 7.0,
-                            ),
-                        ],
-
-                    ),
-                    onTap: () {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
-                    },
-                ),
-                ListTile(
-                    title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                            Container(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                        "Filled Forms",
+                                        HOME_KEY,
                                         style: TextStyle(
                                             fontSize: 16.0,
                                             color: Colors.black,
@@ -107,7 +75,36 @@ class DrawerNavigation extends StatelessWidget{
                     ),
                     onTap: () {
                         Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FilledFormsPage()));
+                        Navigator.of(context).popUntil((route) => route.isFirst);
+                    },
+                ),
+                ListTile(
+                    title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                            Container(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                        FILLED_FORMS_KEY,
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            color: Colors.black,
+                                            fontFamily: "Roboto",
+                                            fontWeight: FontWeight.w400,
+                                        ),
+                                    )
+                            ),
+                            Image.asset(
+                                "assets/images/navigation_item_icon.png",
+                                height: 12.0,
+                                width: 7.0,
+                            ),
+                        ],
+
+                    ),
+                    onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => SubmittedFormsPage(user)));
                     },
                 ),
                 SizedBox(height: 200,),
@@ -115,37 +112,21 @@ class DrawerNavigation extends StatelessWidget{
                     title: Container(
                             padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
                             child: Text(
-                                "Exit",
+                                EXIT_KEY,
                                 style: TextStyle(
                                     fontSize: 16.0,
-                                    color: Color(0xffff2020),
+                                    color: Theme.of(context).primaryColor,
                                     fontFamily: "Roboto",
                                     fontWeight: FontWeight.w500,
                                 ),
                             )
                     ),
                     onTap: () {
-                        _logout();
+                        Utils.logOut(context, user.token);
                     },
                 ),
             ],
         ),
     );
   }
-
-  Future<void> _logout() async {
-
-      Utils.logOut(user.token).then((newValue) {
-         if(newValue){
-             while(Navigator.canPop(context)){
-                 Navigator.pop(context);
-             }
-             Navigator.push(context,  MaterialPageRoute(builder: (context) => LoginPage()),);
-         }
-         else{
-
-         }
-      });
-  }
-
 }

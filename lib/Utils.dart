@@ -1,33 +1,50 @@
 
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+import 'package:emersit/Network.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'login/Login.dart';
 
 
 class Utils {
 
+    static const MAIN_COLOR = Color(0xffff2020);
 
-    static Future<bool> logOut(String token) async {
+    static const String APP_NAME = 'Emersit';
 
-        var getFormsResponse = await http.get("https://emersit.herokuapp.com/api/user/logout", headers: {"token": token},);
+    static const String QUESTION_TYPE_TEXT = 'Text';
+    static const String QUESTION_TYPE_NUMBER = 'Number';
+    static const String QUESTION_TYPE_DATE = 'Date';
+    static const String QUESTION_TYPE_LOCATION = 'Location';
 
-        var jsonResponse = json.decode(getFormsResponse.body);
+    static const String GOOGLE_API_KEY = "AIzaSyD0U3ZilXT5h1lkudLsgLRznkNqn-cg3jE";
 
-        print(jsonResponse);
+    static Future<void> logOut(BuildContext context, String token) async {
 
-        if(jsonResponse['status'] != null && jsonResponse['status'] == 200){
+        Network.logout(token).then( (response) async {
+            var jsonResponse = json.decode(response.body);
 
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setString('token', null);
-            await prefs.setString('user', null);
+            print(jsonResponse);
 
-            return true;
-        }
-        else{
-            return false;
-        }
+            if(jsonResponse['status'] != null && jsonResponse['status'] == 200){
 
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setString('token', null);
+                await prefs.setString('user', null);
+
+                while (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                }
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+
+            }
+        });
     }
+
 
 }
