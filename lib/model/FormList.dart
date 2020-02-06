@@ -31,6 +31,7 @@ class RawForm {
     String sId;
     String title;
     String id;
+    String type;
     List<Field> fields;
 
     RawForm({this.sId, this.title, this.id, this.fields});
@@ -39,6 +40,7 @@ class RawForm {
         sId = json['_id'];
         title = json['title'];
         id = json['id'];
+        type = json['type'];
         if (json['fields'] != null) {
             fields = new List<Field>();
             json['fields'].forEach((v) {
@@ -52,6 +54,7 @@ class RawForm {
         data['_id'] = this.sId;
         data['title'] = this.title;
         data['id'] = this.id;
+        data['type'] = this.type;
         if (this.fields != null) {
             data['fields'] = this.fields.map((v) => v.toJson()).toList();
         }

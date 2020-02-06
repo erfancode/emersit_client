@@ -155,49 +155,54 @@ class _MainPageState extends State<MainPage> {
           )
         ],
       ),
-      child: ListTile(
-        title: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-                margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                child: Text(
-                  data == null ? "Title" : data.forms[i].title,
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.black,
-                    fontFamily: "Roboto",
-                    fontWeight: FontWeight.w400,
+      child: GestureDetector(
+          onTap: () =>{
+
+            Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => widget.user.role == Network.AGENT_KEY? FormPage(widget.user, data?.forms[i]): FormDetailPage(widget.user, data?.forms[i]))),
+          },
+          child : Stack(
+              children: [
+                  Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                              margin: const EdgeInsets.fromLTRB(16, 0, 0, 0),
+                              child: Text(
+                                  data == null ? "Title" : data.forms[i].title,
+                                  style: TextStyle(
+                                      fontSize: 16.0,
+                                      color: Colors.black,
+                                      fontFamily: "Roboto",
+                                      fontWeight: FontWeight.w400,
+                                  ),
+                              )),
                   ),
-                )),
-            Container(
-              margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Theme.of(context).primaryColor,
-                  width: 1,
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              ),
-              child: Image.asset(
-                "assets/images/ic_fire.png",
-                height: 48.0,
-                width: 48.0,
-              ),
-            ),
-          ],
-        ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => widget.user.role == Network.AGENT_KEY
-                    ? FormPage(widget.user, data?.forms[i])
-                    : FormDetailPage(widget.user, data?.forms[i])),
-          );
-        },
+                  Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                              width: 48,
+                              height: 48,
+                              margin: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: Theme.of(context).primaryColor,
+                                      width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                              ),
+                              child: Center(
+                                  child: Image.asset(
+                                      Utils.getSituationTypeIconAsset(data.forms[i].type),
+                                      height: 32.0,
+                                      width: 32.0,
+                                  ),
+                              )
+                      ),
+                  )
+              ],
+          )
       ),
     );
   }

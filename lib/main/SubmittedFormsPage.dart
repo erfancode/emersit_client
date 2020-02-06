@@ -153,44 +153,98 @@ class _SubmittedFormsPage extends State<SubmittedFormsPage>{
                     )
                 ],
             ),
-            child: ListTile(
-                title: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: GestureDetector(
+                onTap: () => {
+                    //todo
+                },
+                child: Stack(
                     children: [
-                        Container(
-                                margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                                child: Text(
+                        Align(alignment: Alignment.centerLeft,
+                            child: Container(
+                                    margin: const EdgeInsets.fromLTRB(16, 0, 0, 24),
+                                    child: Text(
                                         (data.forms[i].formName == null ? '' : data.forms[i].formName),
-                                    style: TextStyle(
-                                        fontSize: 16.0,
-                                        color: Colors.black,
-                                        fontFamily: "Roboto",
-                                        fontWeight: FontWeight.w400,
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            color: Colors.black,
+                                            fontFamily: "Roboto",
+                                            fontWeight: FontWeight.w400,
+                                        ),
+                                    )),
+                        ),
+                        Align(alignment: Alignment.bottomLeft,
+                            child: Row(
+                                children: <Widget>[
+                                    Container(
+                                        margin: const EdgeInsets.fromLTRB(16, 0, 0, 6),
+                                        child: Icon(
+                                            Icons.calendar_today,
+                                            size: 12.0,
+                                            color: Color(0xff9e9e9e),
+                                        ),
                                     ),
-                                )),
-                        Container(
-                            margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                    color: Theme.of(context).primaryColor,
-                                    width: 1,
-                                ),
-                                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                    Container(
+                                        margin: const EdgeInsets.fromLTRB(6, 0, 0, 6),
+                                        child: Text(
+                                            data.forms[i].date.split("T").elementAt(0),
+                                            style: TextStyle(
+                                                fontSize: 12.0,
+                                                color: Color(0xff9e9e9e),
+                                                fontFamily: "Roboto",
+                                                fontWeight: FontWeight.w400,
+                                            ),
+                                        ),
+                                    ),
+                                    Container(
+                                        margin: const EdgeInsets.fromLTRB(42, 0, 0, 6),
+                                        child: Icon(
+                                            Icons.access_time,
+                                            size: 12.0,
+                                            color: Color(0xff9e9e9e),
+                                        ),
+                                    ),
+                                    Container(
+                                        margin: const EdgeInsets.fromLTRB(6, 0, 0, 6),
+                                        child: Text(
+                                            data.forms[i].date.split("T").elementAt(1).split(":").getRange(0, 2).toString().replaceAll("(", "").replaceAll(")", "").replaceAll(", ", ":"),
+                                            style: TextStyle(
+                                                fontSize: 12.0,
+                                                color: Color(0xff9e9e9e),
+                                                fontFamily: "Roboto",
+                                                fontWeight: FontWeight.w400,
+                                            ),
+                                        ),
+                                    ),
+
+
+                                ],
                             ),
-                            child: Image.asset(
-                                "assets/images/ic_fire.png",
-                                height: 48.0,
-                                width: 48.0,
+                        ),
+                        Align(alignment: Alignment.centerRight,
+                            child: Container(
+                                width: 48,
+                                height: 48,
+                                margin: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        color: Theme.of(context).primaryColor,
+                                        width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                ),
+                                child: Center(
+                                    child : Image.asset(
+                                        Utils.getSituationTypeIconAsset(data.forms[i].type),
+                                        height: 32.0,
+                                        width: 32.0,
+                                    ),
+                                ),
                             ),
                         ),
                     ],
-                ),
-                onTap: () {
-                    //todo
-                },
-            ),
+                )
+            )
         );
     }
 

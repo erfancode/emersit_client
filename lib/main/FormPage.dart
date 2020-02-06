@@ -280,7 +280,7 @@ class _FormPageState extends State<FormPage>{
               isSending = true;
             });
 
-            SubmitForm data = SubmitForm(widget.form.id, widget.user.username, widget.form.title);
+            SubmitForm data = SubmitForm(widget.form.id, widget.user.username, widget.form.title, widget.form.type, DateTime.now().toString());
             for(int i = 0; i < answers.length; i++){
 
                 if(answers[i] != null){

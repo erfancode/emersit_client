@@ -3,9 +3,11 @@ class SubmitForm{
     String formId;
     String username;
     String formName;
+    String type;
+    String date;
     List<DataItem> data;
 
-    SubmitForm(this.formId, this.username, this.formName){
+    SubmitForm(this.formId, this.username, this.formName, this.type, this.date){
         data = List();
     }
 
@@ -18,6 +20,8 @@ class SubmitForm{
         'form_id': formId,
         'username': username,
         'form_name':formName,
+        'type' : type,
+        'submit_date' : date,
         'data' : DataItem.encodeToJson(data),
     };
 }

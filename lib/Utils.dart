@@ -46,5 +46,25 @@ class Utils {
         });
     }
 
+    static String getSituationTypeIconAsset(String type){
+        switch(type){
+            case "earthquake" :{
+                return "assets/images/earthquake.png";
+            }
+            case "fire" :{
+                return "assets/images/fire.png";
+            }
+            case "flood" :{
+                return "assets/images/flood.png";
+            }
+            case "storm" :{
+                return "assets/images/storm.png";
+            }
+            case "tornado" :{
+                return "assets/images/tornado.png";
+            }
+        }
+    }
+
 
 }
