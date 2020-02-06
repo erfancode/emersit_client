@@ -6,6 +6,8 @@ import 'package:emersit/main/SubmittedFormsPage.dart';
 import 'package:emersit/model/User.dart';
 import 'package:flutter/material.dart';
 
+import '../Network.dart';
+
 class DrawerNavigation extends StatelessWidget{
 
     static const String HOME_KEY = 'Home';
@@ -78,7 +80,7 @@ class DrawerNavigation extends StatelessWidget{
                         Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                 ),
-                ListTile(
+                if(user.role == Network.AGENT_KEY) ListTile(
                     title: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

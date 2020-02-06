@@ -34,9 +34,16 @@ class Network {
                 body: submittedForm);
     }
 
-  static getSubmittedForms(String username, String token) async {
+    static Future<http.Response> getSubmittedForms(String username, String token) async {
       return await http.get(BASE_URL + "submit/getSubmittedFormByUsername?username=$username",
           headers: {TOKEN_KEY: token},
       );
   }
+
+    static Future<http.Response> getFormReport(String formId, String token) async{
+
+        return await http.get(BASE_URL + "submit/getSubmittedFormByFormId?formId=$formId",
+            headers: {TOKEN_KEY: token},
+        );
+    }
 }

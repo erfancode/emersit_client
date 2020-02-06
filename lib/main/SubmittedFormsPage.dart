@@ -206,7 +206,7 @@ class _SubmittedFormsPage extends State<SubmittedFormsPage>{
                                     Container(
                                         margin: const EdgeInsets.fromLTRB(6, 0, 0, 6),
                                         child: Text(
-                                            data.forms[i].date.split("T").elementAt(1).split(":").getRange(0, 2).toString().replaceAll("(", "").replaceAll(")", "").replaceAll(", ", ":"),
+                                            data.forms[i].date.split(" ").elementAt(1).split(":").getRange(0, 2).toString().replaceAll("(", "").replaceAll(")", "").replaceAll(", ", ":"),
                                             style: TextStyle(
                                                 fontSize: 12.0,
                                                 color: Color(0xff9e9e9e),

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:emersit/Network.dart';
 import 'package:emersit/main/DrawerNavigation.dart';
-import 'package:emersit/main/FormDetailPage.dart';
+import 'package:emersit/main/FormReportPage.dart';
 import 'package:emersit/main/SubmittedFormsPage.dart';
 import 'package:emersit/main/FormPage.dart';
 import 'package:emersit/model/FormList.dart';
@@ -40,98 +40,98 @@ class _MainPageState extends State<MainPage> {
     @override
     Widget build(BuildContext context) {
 
-    Widget retryView = Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            FAILED_GET_FORMS_MESSAGE,
-            style: TextStyle(
-                fontSize: 19.0,
-                color: Colors.black,
-                fontFamily: "Roboto",
-                fontWeight: FontWeight.w400),
-          ),
-          RaisedButton(
-            onPressed: getFormsFromServer,
-            color: Theme.of(context).primaryColor,
-            splashColor: Colors.grey,
-            shape: RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(24.0),
-            ),
-            child: isLoading
-                ? SizedBox(
-                    child: CircularProgressIndicator(
-                      valueColor:
-                          new AlwaysStoppedAnimation<Color>(Color(0xffff2020)),
+        Widget retryView = Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                FAILED_GET_FORMS_MESSAGE,
+                style: TextStyle(
+                    fontSize: 19.0,
+                    color: Colors.black,
+                    fontFamily: "Roboto",
+                    fontWeight: FontWeight.w400),
+              ),
+              RaisedButton(
+                onPressed: getFormsFromServer,
+                color: Theme.of(context).primaryColor,
+                splashColor: Colors.grey,
+                shape: RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(24.0),
+                ),
+                child: isLoading
+                    ? SizedBox(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              new AlwaysStoppedAnimation<Color>(Color(0xffff2020)),
+                        ),
+                        height: 24,
+                        width: 24,
+                      )
+                    : Text(
+                        RETRY_MESSAGE,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.white,
+                          fontFamily: "Roboto",
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
+            ]);
+
+        return Scaffold(
+            resizeToAvoidBottomInset: false,
+            appBar: AppBar(
+              iconTheme: new IconThemeData(color: Color(0xffff2020)),
+              backgroundColor: Colors.white,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(width: 80),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.all(Radius.circular(6.0)),
                     ),
-                    height: 24,
-                    width: 24,
-                  )
-                : Text(
-                    RETRY_MESSAGE,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.white,
-                      fontFamily: "Roboto",
-                      fontWeight: FontWeight.bold,
+                    child: Image.asset(
+                      "assets/images/logo.png",
+                      height: 31.0,
+                      width: 31.0,
                     ),
                   ),
-          ),
-        ]);
-
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          iconTheme: new IconThemeData(color: Color(0xffff2020)),
-          backgroundColor: Colors.white,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(width: 80),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                ),
-                child: Image.asset(
-                  "assets/images/logo.png",
-                  height: 31.0,
-                  width: 31.0,
-                ),
+                  Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        Utils.APP_NAME,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          color: Theme.of(context).primaryColor,
+                          fontFamily: "Roboto",
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ))
+                ],
               ),
-              Container(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    Utils.APP_NAME,
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      color: Theme.of(context).primaryColor,
-                      fontFamily: "Roboto",
-                      fontWeight: FontWeight.w500,
+            ),
+            body: isLoading
+                ? Center(
+                    child: SizedBox(
+                    child: CircularProgressIndicator(
+                      valueColor: new AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).primaryColor),
                     ),
+                    height: 32,
+                    width: 32,
                   ))
-            ],
-          ),
-        ),
-        body: isLoading
-            ? Center(
-                child: SizedBox(
-                child: CircularProgressIndicator(
-                  valueColor: new AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).primaryColor),
-                ),
-                height: 32,
-                width: 32,
-              ))
-            : (data == null
-                ? retryView
-                : ListView.builder(
-                    itemCount: data == null ? 0 : data.forms.length,
-                    itemBuilder: (BuildContext context, int position) {
-                      return getRow(position);
-                    })),
-        drawer: DrawerNavigation(widget.user, context));
+                : (data == null
+                    ? retryView
+                    : ListView.builder(
+                        itemCount: data == null ? 0 : data.forms.length,
+                        itemBuilder: (BuildContext context, int position) {
+                          return getRow(position);
+                        })),
+            drawer: DrawerNavigation(widget.user, context));
 
   }
 
@@ -157,10 +157,12 @@ class _MainPageState extends State<MainPage> {
       ),
       child: GestureDetector(
           onTap: () =>{
-
             Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => widget.user.role == Network.AGENT_KEY? FormPage(widget.user, data?.forms[i]): FormDetailPage(widget.user, data?.forms[i]))),
+                context,
+                MaterialPageRoute(builder: (context) =>
+                    widget.user.role == Network.AGENT_KEY ? FormPage(widget.user, data?.forms[i]) : FormReportPage(widget.user, data?.forms[i])
+                )
+            ),
           },
           child : Stack(
               children: [

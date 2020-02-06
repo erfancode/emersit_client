@@ -19,7 +19,7 @@ class Utils {
     static const String QUESTION_TYPE_DATE = 'Date';
     static const String QUESTION_TYPE_LOCATION = 'Location';
 
-    static const String GOOGLE_API_KEY = "AIzaSyD0U3ZilXT5h1lkudLsgLRznkNqn-cg3jE";
+    static const String GOOGLE_API_KEY = "AIzaSyBcUG-fn8sQSJplBXOTqoHoEhnwM7pg_yM";
 
     static Future<void> logOut(BuildContext context, String token) async {
 
