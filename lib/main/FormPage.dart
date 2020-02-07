@@ -12,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 
 import '../Utils.dart';
 
@@ -210,7 +211,7 @@ class _FormPageState extends State<FormPage>{
                                   lastDate: DateTime(2101));
                           if (picked != null && picked != selectedDate) {
 
-                              answers[i] = picked.toString();
+                              answers[i] = DateFormat('dd/MM/yyyy hh:mm:ss').format(picked);
                               setState(() {
                                   selectedDate = picked;
                               });
@@ -244,8 +245,8 @@ class _FormPageState extends State<FormPage>{
                                   builder: (context) => PlacePicker(
                                       apiKey: Utils.GOOGLE_API_KEY,   // Put YOUR OWN KEY here.
                                       onPlacePicked: (result) {
-                                          answers[i] = "${result.geometry.location.lat},${result.geometry.location.lng}";
-                                          print("${result.geometry.location.lat}  ${result.geometry.location.lng}");
+                                          answers[i] = result.geometry.location.lat.toStringAsFixed(7) + "," +result.geometry.location.lng.toStringAsFixed(7);
+                                          print(answers[i]);
                                           Navigator.of(context).pop();
                                           setState(() { });
                                       },
@@ -280,7 +281,7 @@ class _FormPageState extends State<FormPage>{
               isSending = true;
             });
 
-            SubmitForm data = SubmitForm(widget.form.id, widget.user.username, widget.form.title, widget.form.type, DateTime.now().toString());
+            SubmitForm data = SubmitForm(widget.form.id, widget.user.username, widget.form.title, widget.form.type, DateFormat('dd/MM/yyyy hh:mm:ss').format(DateTime.now()));
             for(int i = 0; i < answers.length; i++){
 
                 if(answers[i] != null){

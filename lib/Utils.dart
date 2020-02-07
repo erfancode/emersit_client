@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:emersit/Network.dart';
 import 'package:flutter/material.dart';
+import 'package:geojson/geojson.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login/Login.dart';
@@ -42,6 +43,9 @@ class Utils {
                     MaterialPageRoute(builder: (context) => LoginPage()),
                 );
 
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
+
             }
         });
     }
@@ -66,5 +70,21 @@ class Utils {
         }
     }
 
+
+    static Future<bool> inside(GeoJsonPoint point, GeoJsonPolygon vs) async {
+        // ray-casting algorithm based on
+        // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+
+        var list = List(1);
+        list.add(point);
+        var nearList = await GeoJson().geofencePolygon(polygon: vs, points: list);
+
+        if(nearList.length > 0){
+            return true;
+        }
+        else{
+            return true;
+        }
+    }
 
 }

@@ -9,6 +9,7 @@ import 'package:emersit/model/SubmittedFormList.dart';
 import 'package:emersit/model/User.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geojson/geojson.dart';
 
 import '../Utils.dart';
 import 'DrawerNavigation.dart';
@@ -35,6 +36,7 @@ class _FormDetailPage extends State<FormReportPage>{
     final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
     SubmittedFormList data;
+    GeoJsonFeatureCollection locations;
 
     List<Forms> filteredForms;
 
@@ -46,7 +48,9 @@ class _FormDetailPage extends State<FormReportPage>{
     void initState() {
         super.initState();
 
+        getLocations();
         getFormReport();
+
     }
 
     @override
@@ -65,7 +69,12 @@ class _FormDetailPage extends State<FormReportPage>{
                                 fontWeight: FontWeight.w400),
                     ),
                     RaisedButton(
-                        onPressed: getFormReport,
+                        onPressed: () {
+                            if(data == null)
+                                getFormReport;
+                            if(locations == null)
+                                getLocations();
+                        },
                         color: Theme.of(context).primaryColor,
                         splashColor: Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -121,7 +130,7 @@ class _FormDetailPage extends State<FormReportPage>{
                             ),
                             height: 32,
                             width: 32,
-                        )) : (data == null ? retryView :
+                        )) : ((data == null || locations == null) ? retryView :
                 SingleChildScrollView(
                     child : Stack(
                         children: <Widget>[
@@ -159,12 +168,14 @@ class _FormDetailPage extends State<FormReportPage>{
                                 alignment: Alignment.topCenter,
                                 child: Container(
                                     width: 500,
-                                    margin: const EdgeInsets.fromLTRB(16, 176, 16, 0),
+                                    margin: const EdgeInsets.fromLTRB(16, 176, 16, 24),
                                     child: SingleChildScrollView(
                                         scrollDirection: Axis.horizontal,
                                         child: Container(
-                                            width: 700,
+                                            width: widget.rawForm.fields.length * 100.0,
                                             child: Table(
+                                                border: TableBorder.all(),
+                                                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                                                 children: mRows,
                                             ),
                                         )
@@ -206,52 +217,93 @@ class _FormDetailPage extends State<FormReportPage>{
       });
   }
 
-      void setRows(List<Forms> forms){
+    void getLocations() async{
+
+        setState(() {
+            isLoading = true;
+        });
+
+        Network.getLocations(widget.user.token).then((response) async {
+            var jsonResponse = jsonDecode(response.body);
+
+            if (jsonResponse['features'] != null) {
+
+                var features = { "features" : jsonResponse['features']};
+
+                var newLocations = await featuresFromGeoJson(jsonEncode(features));
+
+                setState(() {
+                    locations = newLocations;
+
+                    isLoading = false;
+                });
+
+            } else if (jsonResponse['status'] == 403) {
+                locations = null;
+                setState(() {
+                    isLoading = false;
+                });
+                _logout(widget.user.token);
+            } else {
+                locations = null;
+                setState(() {
+                    isLoading = false;
+                });
+            }
+        });
+
+    }
+
+    void setRows(List<Forms> forms){
 
             mRows = [];
 
-            List<Container> row = [];
+            //region header
+            List<FittedBox> row = [];
 
-            row.add(new Container(
-                    decoration: new BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                    ),
-                    child : Text(
-                        "username",
-                        style: TextStyle(
-                                color: Colors.white
-                        ),
-                    )
-                )
-            );
+            row.add(new FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Center(
+                        child : Text(
+                            "username",
+                            style: TextStyle(
+                                    color: Colors.white,
+                                fontWeight: FontWeight.w600
+                            ),
+                        )
+                ),
+            ));
 
             for(Field field in widget.rawForm.fields){
 
-                row.add(new Container(
-                        decoration: new BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                        ),
+                row.add(new FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Center(
                             child : Text(
                                 field.title,
                                 style: TextStyle(
-                                    color: Colors.white
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900
                                 ),
                             )
                         )
-                );
+                ));
             }
 
             mRows.add(new TableRow(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                ),
                 children: row
             ));
 
-            for(Forms form in forms){
-                List<Container> roww = [];
+            //endregion
 
-                roww.add(new Container(
-                    decoration: new BoxDecoration(
-                        color: Colors.white,
-                    ),
+            //region body
+            for(Forms form in forms){
+                List<Center> roww = [];
+
+                roww.add(new Center(
                     child: Text(
                         form.username,
                     ),
@@ -264,15 +316,18 @@ class _FormDetailPage extends State<FormReportPage>{
                     for(Data field in form.data){
 
                         if(field.name == ffield.name){
-                            value = field.value;
+
+                            if(ffield.type == "Location"){
+                                value = field.value;
+                            }
+                            else {
+                                value = field.value;
+                            }
                             break;
                         }
                     }
 
-                    roww.add(new Container(
-                        decoration: new BoxDecoration(
-                            color: Colors.white,
-                        ),
+                    roww.add(new Center(
                         child: Text(
                             value,
                         ),
@@ -280,48 +335,63 @@ class _FormDetailPage extends State<FormReportPage>{
                 }
 
                 mRows.add(new TableRow(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                        ),
                         children: roww
                 ));
             }
-            //sum
-//            List<Container> roww= [];
-//            for(Field ffield in widget.rawForm.fields){
-//                int count = -1;
-//
-//
-//                if(ffield.type == "Number"){
-//                    for(Forms form in forms){
-//                        for(Data field in form.data){
-//
-//                            if(field.name == ffield.name){
-////                                count++;
-//                                count += int.parse(field.value);
-//                                break;
-//                            }
-//                        }
-//
-//                    }
-//                }
-//
-//                count++;
-//
-//                roww.add(new Container(
-//                    decoration: new BoxDecoration(
-//                        color: Colors.white,
-//                    ),
-//                    child: Text(
-//                        count == 0 ? "" : count,
-//                    ),
-//                ));
-//            }
-//
-//            mRows.add(new TableRow(
-//                    children: roww
-//            ));
+            //endregion
 
+            //region Sum
+            List<Container> sumRow= [];
+
+            sumRow.add(new Container(
+                height: 40,
+                alignment: Alignment(0.0, 0.0),
+                child: Text(
+                    "Sum",
+                ),
+            ));
+
+            for(Field ffield in widget.rawForm.fields){
+                var count = -1;
+
+
+                if(ffield.type == "Number"){
+                    for(Forms form in forms){
+                        for(Data field in form.data){
+
+                            if(field.name == ffield.name){
+                                count += int.parse(field.value);
+                                break;
+                            }
+                        }
+
+                    }
+                }
+
+                count++;
+
+                sumRow.add(new Container(
+                    alignment: Alignment(0.0, 0.0),
+                    child: Text(
+                        count == 0 ? "" : count.toString(),
+                    ),
+                ));
+            }
+
+            mRows.add(new TableRow(
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                    ),
+                    children: sumRow
+            ));
+
+            //endregion
       }
 
-        void _logout(String token) {
+    void _logout(String token) {
         Utils.logOut(context, token);
     }
 

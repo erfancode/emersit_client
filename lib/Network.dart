@@ -38,11 +38,18 @@ class Network {
       return await http.get(BASE_URL + "submit/getSubmittedFormByUsername?username=$username",
           headers: {TOKEN_KEY: token},
       );
-  }
+    }
 
     static Future<http.Response> getFormReport(String formId, String token) async{
 
         return await http.get(BASE_URL + "submit/getSubmittedFormByFormId?formId=$formId",
+            headers: {TOKEN_KEY: token},
+        );
+    }
+
+    static Future<http.Response> getLocations(String token) async{
+
+        return await http.get(BASE_URL + "location/getLocations",
             headers: {TOKEN_KEY: token},
         );
     }
