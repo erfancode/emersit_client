@@ -1,6 +1,7 @@
 
 
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:emersit/Network.dart';
 import 'package:emersit/main/FormReportDetailPage.dart';
@@ -10,6 +11,8 @@ import 'package:emersit/model/User.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geojson/geojson.dart';
+import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
+import 'package:intl/intl.dart';
 
 import '../Utils.dart';
 import 'DrawerNavigation.dart';
@@ -23,7 +26,7 @@ class FormReportPage extends StatefulWidget{
 
 
   @override
-  State<StatefulWidget> createState() => _FormDetailPage();
+  State<StatefulWidget> createState() => _FormDetailPage(rawForm);
 
 
 }
@@ -35,6 +38,7 @@ class _FormDetailPage extends State<FormReportPage>{
 
     final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
+    RawForm rawForm;
     SubmittedFormList data;
     GeoJsonFeatureCollection locations;
 
@@ -43,6 +47,8 @@ class _FormDetailPage extends State<FormReportPage>{
     bool isLoading = false;
 
     List<TableRow> mRows;
+
+  _FormDetailPage(this.rawForm);
 
     @override
     void initState() {
@@ -202,7 +208,7 @@ class _FormDetailPage extends State<FormReportPage>{
               setState(() {
                   data = SubmittedFormList.fromJson(jsonResponse);
                   filteredForms = data.forms;
-                  setRows(data.forms);
+                  mRows = setRows(filteredForms);
               });
           } else if (jsonResponse['status'] == 403) {
               data = null;
@@ -254,9 +260,9 @@ class _FormDetailPage extends State<FormReportPage>{
 
     }
 
-    void setRows(List<Forms> forms){
+    List<TableRow> setRows(List<Forms> forms){
 
-            mRows = [];
+            List<TableRow> rows= [];
 
             //region header
             List<FittedBox> row = [];
@@ -278,19 +284,22 @@ class _FormDetailPage extends State<FormReportPage>{
 
                 row.add(new FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Center(
-                            child : Text(
-                                field.title,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900
-                                ),
-                            )
+                        child: GestureDetector(
+                            onTap: () => _filter(field),
+                            child: Center(
+                                    child : Text(
+                                        field.title,
+                                        style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w900
+                                        ),
+                                    )
+                            ),
                         )
                 ));
             }
 
-            mRows.add(new TableRow(
+            rows.add(new TableRow(
                 decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
                 ),
@@ -334,7 +343,7 @@ class _FormDetailPage extends State<FormReportPage>{
                     ));
                 }
 
-                mRows.add(new TableRow(
+                rows.add(new TableRow(
                         decoration: BoxDecoration(
                             color: Colors.white,
                         ),
@@ -381,7 +390,7 @@ class _FormDetailPage extends State<FormReportPage>{
                 ));
             }
 
-            mRows.add(new TableRow(
+            rows.add(new TableRow(
                     decoration: BoxDecoration(
                         color: Colors.white,
                     ),
@@ -389,10 +398,143 @@ class _FormDetailPage extends State<FormReportPage>{
             ));
 
             //endregion
+
+        return rows;
       }
 
     void _logout(String token) {
         Utils.logOut(context, token);
     }
+
+      Future<void> _filter(Field field) async {
+
+        switch(field.type){
+            case "Date":{
+                final List<DateTime> picked = await DateRagePicker.showDatePicker(
+                        context: context,
+                        initialFirstDate: new DateTime.now(),
+                        initialLastDate: (new DateTime.now()).add(new Duration(days: 7)),
+                        firstDate: new DateTime(2015),
+                        lastDate: new DateTime(2025)
+                );
+                if (picked != null && picked.length == 2) {
+
+                    List<Forms> newList = [];
+
+                    for(Forms form in data.forms){
+
+                        for(Data field in form.data){
+
+                            for(Field fieldd in rawForm.fields){
+
+                                if(fieldd.type == "Date" && field.name == fieldd.name){
+                                    var fieldTime = DateFormat("dd/MM/yyyy HH:mm:ss").parse(field.value);
+
+                                    if(fieldTime.isBefore(picked.elementAt(1)) && fieldTime.isAfter(picked.elementAt(0))){
+                                        newList.add(form);
+                                    }
+                                }
+
+                            }
+
+                        }
+                    }
+
+
+                    setState(() {
+                        filteredForms = newList;
+                      mRows = setRows(filteredForms);
+                    });
+
+
+
+                }
+                break;
+            }
+            case "Number":{
+
+                showDialog(context: context,
+                        builder: (BuildContext context) => Dialog(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0.0,
+                            backgroundColor: Colors.transparent,
+                            child: Stack(),
+                        ));
+
+                break;
+            }
+            case "Location" :{
+
+                break;
+            }
+        }
+
+      }
+
+//      List<Forms> applyFilters(){
+//
+//        List<Forms> returnList = [];
+//
+//        for(Forms form in data.forms){
+//
+//            var dateFilterIndex = 0;
+//            var numberFilterIndex = 0;
+//
+//            var isValidToShow = true;
+//
+//            for(Field field in rawForm.fields){
+//
+//                if(field.type == "Date"){
+//                    if(dateFilters.elementAt(dateFilterIndex) != null){
+//
+//                        for(Data filledData in form.data){
+//
+//                            if(filledData.name == field.name){
+//
+//                            }
+//
+//                        }
+//
+//
+//                    }
+//                    dateFilterIndex++;
+//                }
+//                else if(field.type == "Number"){
+//                    if(numbersFilters.elementAt(numberFilterIndex) != null){
+//
+//                    }
+//                    numberFilterIndex++;
+//                }
+//
+//            }
+//
+//            if(isValidToShow){
+//                returnList.add(form);
+//            }
+//
+//        }
+//
+//        return returnList;
+//
+//      }
+
+      List<Forms> subscribe2List(List<Forms> baseList, List<Forms> secondList){
+
+        var returnList = baseList;
+
+        for(int i = 0; i < baseList.length; i++){
+
+            var item = baseList.elementAt(i);
+
+            if(!secondList.contains(item)){
+                returnList.remove(item);
+            }
+        }
+
+
+        return returnList;
+      }
 
 }

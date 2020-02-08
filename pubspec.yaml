@@ -17,6 +17,7 @@ dependencies:
   google_maps_place_picker: 0.6.1
   intl: ^0.16.1
   geojson: ^0.8.0
+  date_range_picker: ^1.0.6
 
 dev_dependencies:
   flutter_test:
